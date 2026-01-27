@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Engine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            margin: 5px;
+        }
+        #statistics {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stat-item {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Поисковый движок</h1>
+    
+    <div class="section">
+        <h2>Управление индексацией</h2>
+        <button onclick="startIndexing()">Запустить индексацию</button>
+        <button onclick="stopIndexing()">Остановить индексацию</button>
+        <div style="margin-top: 20px;">
+            <input type="text" id="pageUrl" placeholder="https://example.com/page.html">
+            <button onclick="indexPage()">Индексировать страницу</button>
+        </div>
+        <div id="indexingResult"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Поиск</h2>
+        <input type="text" id="searchQuery" placeholder="Введите поисковый запрос">
+        <button onclick="search()">Найти</button>
+        <div id="searchResults"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Статистика</h2>
+        <button onclick="getStatistics()">Обновить статистику</button>
+        <div id="statistics"></div>
+    </div>
+    
+    <script>
+        function startIndexing() {
+            fetch('/api/startIndexing')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('indexingResult').innerHTML = 
+                        data.result ? 'Индексация запущена' : 'Ошибка: ' + data.error;
+                });
+        }
+        
+        function stopIndexing() {
+            fetch('/api/stopIndexing')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('indexingResult').innerHTML = 
+                        data.result ? 'Индексация остановлена' : 'Ошибка: ' + data.error;
+                });
+        }
+        
+        function indexPage() {
+            const url = document.getElementById('pageUrl').value;
+            fetch('/api/indexPage?url=' + encodeURIComponent(url), { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('indexingResult').innerHTML = 
+                        data.result ? 'Страница проиндексирована' : 'Ошибка: ' + data.error;
+                });
+        }
+        
+        function search() {
+            const query = document.getElementById('searchQuery').value;
+            fetch('/api/search?query=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result) {
+                        let html = '<h3>Найдено результатов: ' + data.count + '</h3>';
+                        data.data.forEach(item => {
+                            html += '<div class="stat-item">';
+                            html += '<h4>' + item.title + '</h4>';
+                            html += '<p>' + item.snippet + '</p>';
+                            html += '<small>' + item.site + item.uri + ' (релевантность: ' + 
+                                   item.relevance.toFixed(2) + ')</small>';
+                            html += '</div>';
+                        });
+                        document.getElementById('searchResults').innerHTML = html;
+                    } else {
+                        document.getElementById('searchResults').innerHTML = 'Ошибка: ' + data.error;
+                    }
+                });
+        }
+        
+        function getStatistics() {
+            fetch('/api/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result) {
+                        const stats = data.statistics;
+                        let html = '<div class="stat-item"><strong>Всего сайтов:</strong> ' + stats.total.sites + '</div>';
+                        html += '<div class="stat-item"><strong>Всего страниц:</strong> ' + stats.total.pages + '</div>';
+                        html += '<div class="stat-item"><strong>Всего лемм:</strong> ' + stats.total.lemmas + '</div>';
+                        html += '<div class="stat-item"><strong>Индексация:</strong> ' + 
+                               (stats.total.isIndexing ? 'В процессе' : 'Завершена') + '</div>';
+                        
+                        html += '<h3>По сайтам:</h3>';
+                        stats.detailed.forEach(site => {
+                            html += '<div class="stat-item">';
+                            html += '<strong>' + site.name + '</strong> (' + site.url + ')<br>';
+                            html += 'Статус: ' + site.status + '<br>';
+                            html += 'Страниц: ' + site.pages + ', Лемм: ' + site.lemmas;
+                            if (site.error) {
+                                html += '<br>Ошибка: ' + site.error;
+                            }
+                            html += '</div>';
+                        });
+                        
+                        document.getElementById('statistics').innerHTML = html;
+                    }
+                });
+        }
+        
+        // Загрузить статистику при загрузке страницы
+        window.onload = getStatistics;
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    username: postgres
+    password: 3235556510
+    url: jdbc:postgresql://localhost:5432/search_engine?useSSL=false
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+indexing-settings:
+  sites:
+    - url: http://www.playback.ru/
+      name: PlayBack.Ru
+    - url: https://volochek.life/
+      name: Volochek Life
+    - url: http://radiomv.ru/
+      name: RadioMV
+  user-agent: HeliontSearchBot/1.0
+  referrer: http://www.google.com
+  delay-ms: 1000
