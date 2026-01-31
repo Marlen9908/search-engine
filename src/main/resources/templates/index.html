@@ -1,161 +1,162 @@
-<!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+
+<!--END-->
+<!--END--><!DOCTYPE html><!--[if IE 7]>
+<html class="ie7" lang="ru">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie8" lang="ru">
+<![endif]-->
+<!--[if IE 9]>
+<html class="ie9" lang="ru">
+<![endif]-->
+<!--[if gt IE 9]><!--> <html lang="ru"> <!--<![endif]-->
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Engine</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        .section {
-            margin: 30px 0;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        input[type="text"] {
-            padding: 10px;
-            width: 300px;
-            margin: 5px;
-        }
-        #statistics {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .stat-item {
-            margin: 10px 0;
-        }
-    </style>
+  <title>Site Search Engine</title>
+  <meta name="description" content="Site Search Engine">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <!--meta( http-equiv="cache-control" content="no-cache")-->
+  <!--meta( http-equiv="expires" content="0")-->
+  <!--link(rel="preload" href="assets/css/extra.min.css?v=" + version as="style" crossorigin="anonymous")-->
+  <link href="favicon.ico" rel="shortcut icon">
+  <link rel="preload" href="/assets/fonts/Montserrat/Montserrat-SemiBold.woff2" as="font" crossorigin="anonymous">
+  <link rel="preload" href="/assets/fonts/Montserrat/Montserrat-Light.woff2" as="font" crossorigin="anonymous">
+  <link rel="preload" href="/assets/fonts/Montserrat/Montserrat-Medium.woff2" as="font" crossorigin="anonymous">
+  <link rel="preload" href="/assets/fonts/Montserrat/Montserrat-ExtraBold.woff2" as="font" crossorigin="anonymous">
+  <link rel="stylesheet" href="/assets/css/fonts.css?v=82368483">
+  <link rel="stylesheet" href="/assets/css/basic.css?v=82368483">
+  <link rel="stylesheet" href="/assets/css/extra.css?v=82368483"><!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script>
+     var backendApiUrl = 'api'
+  </script>
+  
+  <script defer src="/assets/js/scripts.js?v=38874865"></script>
+
 </head>
-<body>
-    <h1>Поисковый движок</h1>
-    
-    <div class="section">
-        <h2>Управление индексацией</h2>
-        <button onclick="startIndexing()">Запустить индексацию</button>
-        <button onclick="stopIndexing()">Остановить индексацию</button>
-        <div style="margin-top: 20px;">
-            <input type="text" id="pageUrl" placeholder="https://example.com/page.html">
-            <button onclick="indexPage()">Индексировать страницу</button>
-        </div>
-        <div id="indexingResult"></div>
+<body class="Site">
+  <!--if lt IE 8
+  p.error-browser
+      | Ваш браузер&nbsp;
+      em устарел!&nbsp;
+      a(href="http://browsehappy.com/") Выберите новую версию
+          +s
+          | браузера здесь&nbsp;
+      | для правильного отображения сайта.
+  -->
+  <div class="Site-loader">
+    <div class="Site-loader-block">
+      <div>
+      </div>
+      <div>
+      </div>
+      <div>
+      </div>
+      <div>
+      </div>
     </div>
-    
-    <div class="section">
-        <h2>Поиск</h2>
-        <input type="text" id="searchQuery" placeholder="Введите поисковый запрос">
-        <button onclick="search()">Найти</button>
-        <div id="searchResults"></div>
+  </div>
+  <div class="Middle">
+    <div class="wrap">
+      <div class="Site-loadingIsComplete">
+        <main class="Tabs Tabs_column Middle-main">
+          <div class="Column">
+            <div class="Tabs-links"><a class="Tabs-link Tabs-link_ACTIVE" href="#dashboard"><img class="Tabs-icon" src="/assets/img/icons/dashboard.svg" alt="dashboard.svg"/><span class="Tabs-linkText">Dashboard</span></a><a class="Tabs-link" href="#management"><img class="Tabs-icon" src="/assets/img/icons/management.svg" alt="management.svg"/><span class="Tabs-linkText">Management</span></a><a class="Tabs-link" href="#search"><img class="Tabs-icon" src="/assets/img/icons/search.svg" alt="search.svg"/><span class="Tabs-linkText">Search</span></a>
+            </div>
+          </div>
+          <div class="Tabs-wrap">
+            <div class="Tabs-block" id="dashboard">
+              <div class="Section">
+                <div class="Section-header">
+                  <h2 class="Section-title">Dashboard
+                  </h2>
+                </div>
+                <div class="Statistics">
+                  <div class="Statistics-info">
+                    <div class="Statistics-block"><span class="Statistics-amount" id="totalSites"></span><span class="Statistics-title">sites</span>
+                    </div>
+                    <div class="Statistics-block"><span class="Statistics-amount" id="totalPages"></span><span class="Statistics-title">pages</span>
+                    </div>
+                    <div class="Statistics-block"><span class="Statistics-amount" id="totalLemmas"></span><span class="Statistics-title">lemmas</span>
+                    </div>
+                  </div>
+                  <div class="HideBlock Statistics-example">
+                    <header class="HideBlock-header HideBlock-trigger">
+                      <strong class="HideBlock-title"><span class="Statistics-status"></span>
+                      </strong>
+                      <button class="HideBlock-btn" type="button">
+                      </button>
+                    </header>
+                    <div class="HideBlock-content">
+                      <p class="Statistics-description">
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="Tabs-block" id="management">
+              <div class="Section">
+                <div class="Section-header">
+                  <h2 class="Section-title">Management
+                  </h2>
+                </div>
+                <div>
+                  <button class="btn btn_primary API-startIndexing" data-btntype="check" data-check="false" data-alttext="Stop indexing" data-send="startIndexing" data-altsend="stopIndexing"><span class="btn-content">Start indexing</span>
+                  </button>
+                </div><br>
+                <div class="UpdatePageBlock">
+                  <h3>Add/update page:
+                  </h3>
+                  <form class="form form_close" action="#" method="post" data-send="indexPage">
+                    <div class="form-group form-group_row">
+                      <input class="form-input" id="page" name="page" type="text"/>
+                      <button class="btn btn_primary form-btn" type="submit">Add/update
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="Tabs-block" id="search">
+              <div class="Section">
+                <div class="Section-header">
+                  <h2 class="Section-title">Search
+                  </h2>
+                </div>
+                <form class="form form_close" action="#" method="post" data-send="search" data-sendlimit="10">
+                  <div class="form-group">
+                    <div class="form-selectWrap">
+                      <!-- - var options = setOptions(items, ['value', 'selected', 'disabled']);-->
+                      <select class="form-select" name="site">
+                        <option value="" selected="selected">All sites
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group form-group_row">
+                    <input class="form-input" id="query" name="query" type="text" placeholder="Query"/>
+                    <button class="btn btn_primary form-btn" type="submit">Search
+                    </button>
+                  </div>
+                </form>
+                <div class="SearchResult">
+                  <strong class="SearchResult-title">Found&#32;<span class="SearchResult-amount">0</span>&#32;results
+                  </strong>
+                  <div class="SearchResult-content">
+                  </div>
+                  <div class="SearchResult-footer SearchResult-footer_hide">
+                    <button class="btn btn_primary" data-send="search" data-sendtype="next">Show more<span class="SearchResult-remain">(0)</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
-    
-    <div class="section">
-        <h2>Статистика</h2>
-        <button onclick="getStatistics()">Обновить статистику</button>
-        <div id="statistics"></div>
-    </div>
-    
-    <script>
-        function startIndexing() {
-            fetch('/api/startIndexing')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('indexingResult').innerHTML = 
-                        data.result ? 'Индексация запущена' : 'Ошибка: ' + data.error;
-                });
-        }
-        
-        function stopIndexing() {
-            fetch('/api/stopIndexing')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('indexingResult').innerHTML = 
-                        data.result ? 'Индексация остановлена' : 'Ошибка: ' + data.error;
-                });
-        }
-        
-        function indexPage() {
-            const url = document.getElementById('pageUrl').value;
-            fetch('/api/indexPage?url=' + encodeURIComponent(url), { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('indexingResult').innerHTML = 
-                        data.result ? 'Страница проиндексирована' : 'Ошибка: ' + data.error;
-                });
-        }
-        
-        function search() {
-            const query = document.getElementById('searchQuery').value;
-            fetch('/api/search?query=' + encodeURIComponent(query))
-                .then(response => response.json())
-                .then(data => {
-                    if (data.result) {
-                        let html = '<h3>Найдено результатов: ' + data.count + '</h3>';
-                        data.data.forEach(item => {
-                            html += '<div class="stat-item">';
-                            html += '<h4>' + item.title + '</h4>';
-                            html += '<p>' + item.snippet + '</p>';
-                            html += '<small>' + item.site + item.uri + ' (релевантность: ' + 
-                                   item.relevance.toFixed(2) + ')</small>';
-                            html += '</div>';
-                        });
-                        document.getElementById('searchResults').innerHTML = html;
-                    } else {
-                        document.getElementById('searchResults').innerHTML = 'Ошибка: ' + data.error;
-                    }
-                });
-        }
-        
-        function getStatistics() {
-            fetch('/api/statistics')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.result) {
-                        const stats = data.statistics;
-                        let html = '<div class="stat-item"><strong>Всего сайтов:</strong> ' + stats.total.sites + '</div>';
-                        html += '<div class="stat-item"><strong>Всего страниц:</strong> ' + stats.total.pages + '</div>';
-                        html += '<div class="stat-item"><strong>Всего лемм:</strong> ' + stats.total.lemmas + '</div>';
-                        html += '<div class="stat-item"><strong>Индексация:</strong> ' + 
-                               (stats.total.isIndexing ? 'В процессе' : 'Завершена') + '</div>';
-                        
-                        html += '<h3>По сайтам:</h3>';
-                        stats.detailed.forEach(site => {
-                            html += '<div class="stat-item">';
-                            html += '<strong>' + site.name + '</strong> (' + site.url + ')<br>';
-                            html += 'Статус: ' + site.status + '<br>';
-                            html += 'Страниц: ' + site.pages + ', Лемм: ' + site.lemmas;
-                            if (site.error) {
-                                html += '<br>Ошибка: ' + site.error;
-                            }
-                            html += '</div>';
-                        });
-                        
-                        document.getElementById('statistics').innerHTML = html;
-                    }
-                });
-        }
-        
-        // Загрузить статистику при загрузке страницы
-        window.onload = getStatistics;
-    </script>
-</body>
-</html>
+  </div>
+  <script src="/assets/plg/jQuery/jquery-3.5.1.min.js"></script>
+</body></html>

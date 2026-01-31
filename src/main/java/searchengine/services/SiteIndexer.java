@@ -53,8 +53,11 @@ public class SiteIndexer extends RecursiveAction {
 
         // Проверяем, не посещали ли мы уже этот URL
         if (!visitedUrls.add(path)) {
+            log.trace("Already visited, skipping: {}", path);
             return;
         }
+
+        log.debug("Processing URL: {} (path: {})", url, path);
 
         try {
             // Задержка между запросами
@@ -105,6 +108,8 @@ public class SiteIndexer extends RecursiveAction {
             Elements links = doc.select("a[href]");
             List<SiteIndexer> tasks = new ArrayList<>();
 
+            log.debug("Found {} links on page {}", links.size(), url);
+
             for (Element link : links) {
                 if (isStopped) {
                     break;
@@ -112,24 +117,55 @@ public class SiteIndexer extends RecursiveAction {
 
                 String linkUrl = link.absUrl("href");
 
+                // Пропускаем пустые ссылки
+                if (linkUrl.isEmpty()) {
+                    continue;
+                }
+
+                // Очистка URL от якорей и параметров (опционально)
+                String cleanUrl = linkUrl;
+
+                // Удаляем якорь (#section)
+                int hashIndex = cleanUrl.indexOf('#');
+                if (hashIndex > 0) {
+                    cleanUrl = cleanUrl.substring(0, hashIndex);
+                }
+
+                // Удаляем trailing slash для консистентности (кроме корня)
+                if (cleanUrl.endsWith("/") && !cleanUrl.equals(site.getUrl())) {
+                    cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
+                }
+
                 // Проверяем, что ссылка принадлежит тому же сайту
-                if (linkUrl.startsWith(site.getUrl()) &&
-                        !linkUrl.contains("#") &&
-                        !linkUrl.matches(".*\\.(jpg|jpeg|png|gif|pdf|zip|rar|exe|dmg)$")) {
+                if (!cleanUrl.startsWith(site.getUrl())) {
+                    continue;
+                }
 
-                    String linkPath = linkUrl.replace(site.getUrl(), "");
-                    if (linkPath.isEmpty()) {
-                        linkPath = "/";
-                    }
+                // Проверяем расширение файла
+                if (cleanUrl.matches(".*\\.(jpg|jpeg|png|gif|pdf|zip|rar|exe|dmg|css|js|ico|svg|woff|woff2|ttf|eot)$")) {
+                    log.trace("Skipping file: {}", cleanUrl);
+                    continue;
+                }
 
-                    if (!visitedUrls.contains(linkPath)) {
-                        SiteIndexer task = new SiteIndexer(linkUrl, site, pageRepository,
-                                visitedUrls, config);
-                        tasks.add(task);
-                        task.fork();
-                    }
+                // Вычисляем путь
+                String linkPath = cleanUrl.replace(site.getUrl(), "");
+                if (linkPath.isEmpty()) {
+                    linkPath = "/";
+                }
+
+                // Проверяем что еще не посещали
+                if (!visitedUrls.contains(linkPath)) {
+                    log.trace("Adding to queue: {}", cleanUrl);
+                    SiteIndexer task = new SiteIndexer(cleanUrl, site, pageRepository,
+                            visitedUrls, config);
+                    tasks.add(task);
+                    task.fork();
+                } else {
+                    log.trace("Already visited: {}", linkPath);
                 }
             }
+
+            log.debug("Created {} tasks for page {}", tasks.size(), url);
 
             // Ждем завершения подзадач
             for (SiteIndexer task : tasks) {

@@ -1,6 +1,11 @@
 server:
   port: 8081
 
+logging:
+    level:
+      searchengine: DEBUG
+      searchengine.services.SiteIndexer: TRACE  # Для максимальной детализации
+
 spring:
   datasource:
     username: postgres

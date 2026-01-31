@@ -154,26 +154,47 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
     public Response stopIndexing() {
-        if (!isIndexing) {
+        if (!isIndexing && indexingPools.isEmpty()) {
+            log.warn("Stop indexing called but indexing is not running");
             return new Response(false, "Индексация не запущена");
         }
 
-        siteIndexers.values().forEach(SiteIndexer::stop);
-        indexingPools.values().forEach(ForkJoinPool::shutdown);
+        log.info("Stopping indexing...");
 
-        siteRepository.findAll().stream()
+        // Останавливаем все индексеры
+        siteIndexers.values().forEach(indexer -> {
+            log.debug("Stopping indexer for site");
+            indexer.stop();
+        });
+
+        // Завершаем все пулы
+        indexingPools.forEach((url, pool) -> {
+            log.debug("Shutting down pool for {}", url);
+            pool.shutdown();
+        });
+
+        // Обновляем статус всех индексируемых сайтов
+        List<SiteEntity> indexingSites = siteRepository.findAll().stream()
                 .filter(site -> site.getStatus() == IndexingStatus.INDEXING)
-                .forEach(site -> {
-                    site.setStatus(IndexingStatus.FAILED);
-                    site.setLastError("Индексация остановлена пользователем");
-                    site.setStatusTime(LocalDateTime.now());
-                    siteRepository.save(site);
-                });
+                .toList();
+
+        log.info("Updating status for {} indexing sites", indexingSites.size());
+
+        indexingSites.forEach(site -> {
+            site.setStatus(IndexingStatus.FAILED);
+            site.setLastError("Индексация остановлена пользователем");
+            site.setStatusTime(LocalDateTime.now());
+            siteRepository.save(site);
+            log.info("Stopped indexing for site: {}", site.getName());
+        });
+
+        siteRepository.flush();
 
         isIndexing = false;
         indexingPools.clear();
         siteIndexers.clear();
 
+        log.info("Indexing stopped successfully");
         return new Response(true);
     }
 
